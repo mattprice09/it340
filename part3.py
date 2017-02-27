@@ -36,7 +36,8 @@ class NPuzzle:
     arr = arr.reshape((int(math.sqrt(N)), -1))
     return arr
 
-  def solvable(self, goal):
+  # Utilize the BFS algorithm to find all solveable states in the puzzle
+  def solveable(self, goal):
 
     # Check if the state has no empty slot
     x,y = np.where(goal == 0)
@@ -95,7 +96,7 @@ if __name__ == '__main__':
   N = 4
   puzzle = NPuzzle(N)
   st = time.time()
-  states = puzzle.solvable(puzzle.initial)
+  states = puzzle.solveable(puzzle.initial)
   print '> ({0:.2f} sec) '.format(time.time() - st),
   print 'Finished solving {}-puzzle. There are {} solveable states'.format(N, len(states))
 
