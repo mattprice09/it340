@@ -1,6 +1,8 @@
 import os
 from random import shuffle
-import sys
+
+from email_data import EmailData
+from model import NBClassifier
 
 
 def _load_data(fp):
@@ -12,8 +14,13 @@ def _load_data(fp):
         # emails are ensured to be .txt files
         continue
       # get full filepath of email
-      email = os.path.join(root, fn)
-      emails.append(email)
+      filename = os.path.join(root, fn)
+      with open(filename, 'rU') as reader:
+        lines = []
+        for line in reader:
+          if line:
+            lines.append(line)
+        emails.append('\n'.join(lines))
   return emails
 
 
@@ -35,5 +42,21 @@ def load_data_sets(N_training=500):
 
 if __name__ == '__main__':
 
+  # Load training/testing data from files
   nsp_training, sp_training, nsp_testing, sp_testing = load_data_sets()
+
+  # Get structured data objects
+  training_data = EmailData('training')
+  training_data.add_emails(nsp_training, 0)
+  training_data.add_emails(sp_training, 1)
+
+  test_data = EmailData('test')
+  test_data.add_emails(nsp_testing, -1)
+  test_data.add_emails(sp_testing, -1)
+
+  # training_data.info()
+  # test_data.info()
+  
+  # Create model object
+  model = NBClassifier(training_data)
 

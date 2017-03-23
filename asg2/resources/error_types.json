@@ -1,0 +1,12 @@
+{
+  "invalid_error": [
+    "\n> ERROR: Wow...you threw an error while throwing an error. Invalid error type..."
+  ],
+  "spam_choose": [
+  	"\n> ERROR: You must choose a spam_flag between either nonspam (0) or spam (1)"
+  ],
+  "spam_flag": [
+    "\n> ERROR: Invalid flag for email.",
+    "> spam_flag options: -1 (unknown), 0 (nonspam), 1 (spam)"
+  ]
+}
