@@ -1,7 +1,7 @@
 import json
 
 
-class Asg2Error(Exception):
+class Asg3Error(Exception):
   """
     Custom error handling to avoid messy printing and sys.exit calls
     in the main program.
@@ -18,7 +18,7 @@ class Asg2Error(Exception):
       msg = error_types[error_type]
     msg = '\n'.join(msg)
 
-    super(Asg2Error, self).__init__(msg)
+    super(Asg3Error, self).__init__(msg)
 
 
   def load_json_file(self, fp):

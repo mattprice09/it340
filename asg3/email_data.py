@@ -1,6 +1,6 @@
 import re
 
-from errors import Asg2Error
+from errors import Asg3Error
 from helpers import tokenize
 
 
@@ -53,18 +53,10 @@ class EmailData:
         1 -> spam
     """
     if spam_flag not in [-1, 0, 1]:
-      raise Asg2Error('spam_flag')
+      raise Asg3Error('spam_flag')
 
     for email in emails:
       self._add_email(email, spam_flag)
-
-
-  def info(self):
-    """ Print general info about the object """
-    print '\n>> Printing info about EmailData object'
-    print '\n> Name: {}'.format(self.name)
-    print '> Number of emails: {}'.format(len(self.emails))
-    print '> Number of unique words: {}'.format(len(self.words))
 
 
   def num_spam(self):
