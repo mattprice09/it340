@@ -1,7 +1,9 @@
+import argparse
 import os
 from random import shuffle
 
 from email_data import EmailData
+from errors import Asg3Error
 from model import NBClassifier
 
 
@@ -28,6 +30,10 @@ def load_data_sets(N_training=500):
   """ Get a sample data set of size N of either training or testing data """
   nonspam = _load_data('email_data/Ham/')
   spam = _load_data('email_data/Spam')
+
+  if N_training >= len(nonspam) or N_training >= len(spam):
+    # user used all data for training and none for testing
+    raise Asg3Error('n_too_large')
 
   # randomize subsets for training and testing, for spam and non-spam
   shuffle(nonspam)
@@ -87,9 +93,16 @@ def print_results(training_data, test_data, accuracy,
 
 if __name__ == '__main__':
 
-  # Load training/testing data from files
-  training_data, test_data = load_data_sets()
+  # Allow user to specify N emails to use for training/testing
+  cli = argparse.ArgumentParser()
+  cli.add_argument('-n', '--ntraining', default=500, type=int,
+                   help='The number of emails to allocate each for spam and non-spam. Default: 500 each')
+  args = cli.parse_args()
 
+  # Load training/testing data from files
+  training_data, test_data = load_data_sets(N_training=args.ntraining)
+
+  # train model
   model = NBClassifier()
   model.train(training_data)
 
