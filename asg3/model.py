@@ -1,10 +1,13 @@
+import math
+import re
+
 from errors import Asg3Error
 from helpers import tokenize
 
 
 class NBClassifier:
   """
-    Naive Bayesian classifier to detect email spam.
+    Naive Bayesian classifier to detect doc positive.
     Uses the Multi-Variate Bernoulli Event Model.
   """
 
@@ -12,25 +15,25 @@ class NBClassifier:
     pass
 
 
-  def _email_count_for_word(self, word, spam_flag=-1):
+  def _doc_count_for_word(self, word, flag=-1):
     """
-      Get the number of emails that use a given word.
-      User can specify an optional filter to only count emails
-      that are known spam or known non-spam emails.
+      Get the number of docs that use a given word.
+      User can specify an optional filter to only count docs
+      that are known positive or known non-positive docs.
     """
     if word not in self.X.words:
       # word doesn't exist
       return 0
 
-    if spam_flag == -1:
-      # get total number of emails that use the word
+    if flag == -1:
+      # get total number of docs that use the word
       return len(self.X.words[word])
 
-    # get number of emails with given word and label match
+    # get number of docs with given word and label match
     n = 0
-    for ind in self.X.words[word]:
-      if self.X.emails[ind][1] == spam_flag:
-        n+=1
+    for doc_ind in self.X.words[word]:
+      if self.X.docs[doc_ind][1] == flag:
+        n += self.X.words[word][doc_ind]
     return n
 
 
@@ -54,23 +57,30 @@ class NBClassifier:
     return tp, fp, tn, fn
 
 
-  def _predict_email(self, x, spam_flag):
-    """ Get probability of x being spam/nonspam """
-    if spam_flag not in [0, 1]:
-      raise Asg3Error('spam_choose')
+  def _predict_doc(self, x, flag):
+    """ Get probability of x being positive/negative """
 
-    if spam_flag == 1:
-      denom = self.X.num_spam()
+    if flag == 1:
+      denom = self.X.num_positive()
     else:
-      denom = self.X.num_nonspam()
+      denom = self.X.num_negative()
+    denom += self.X.vocab_size()
 
     # multiply word probabilities for all words in x
     words = tokenize(x)
-    prob = 1.0
+    # prob = 1.0
+    # for word in words:
+    #   wi = self._doc_count_for_word(word, flag=flag)
+    #   # utilize the Laplace Smooth
+    #   prob *= ((float(wi)+1.0) / (float(denom)+2.0))
+
+    prob = math.log(self.X.priors[str(flag)])
     for word in words:
-      wi = self._email_count_for_word(word, spam_flag=spam_flag)
+      wi = self._doc_count_for_word(word, flag=flag)
       # utilize the Laplace Smooth
-      prob *= ((float(wi)+1.0) / (float(denom)+2.0))
+      prob += math.log((float(wi)+1.0) / (float(denom)+2.0))
+
+    # prob *= math.log(self.X.priors[str(flag)])
 
     return prob
 
@@ -99,27 +109,32 @@ class NBClassifier:
     return accuracy, f1, precision, recall
 
 
-  def predict(self, email):
-    """ Predict if email should be classified as spam or nonspam. """
+  def predict(self, doc):
+    """ Predict if doc should be classified as positive or negative. """
     
-    prob_spam = self._predict_email(email, 1)
-    prob_nonspam = self._predict_email(email, 0)
+    prob_positive = self._predict_doc(doc, 1)
+    prob_negative = self._predict_doc(doc, 0)
 
-    if prob_spam > prob_nonspam:
+    if prob_positive > prob_negative:
       return 1
     return 0
 
 
   def predict_many(self, X):
-    """ Predict many emails """
+    """ Predict many docs """
 
     pred_Y = []
     Y = []
-    for email in X.emails:
-      pred_Y.append(self.predict(email[0]))
-      Y.append(email[1])
+    for doc in X.docs:
+      pred_Y.append(self.predict(doc[0]))
+      Y.append(doc[1])
 
     return pred_Y, Y
+
+
+  def save(self):
+    """ Save the model into a form that can be loaded back into an object """
+    pass
 
 
   def train(self, X):
